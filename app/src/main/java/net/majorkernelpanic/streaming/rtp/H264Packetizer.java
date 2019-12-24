@@ -120,14 +120,17 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 				// We measure how long it took to receive NAL units from the phone
 				duration = System.nanoTime() - oldtime;
 
-				stats.push(duration);
+				stats.push(duration);		//похоже здесь ошибка
 				// Computes the average duration of a NAL unit
 				delay = stats.average();
 				//Log.d(TAG,"duration: "+duration/1000000+" delay: "+delay/1000000);
 
 			}
 		} catch (IOException e) {
-		} catch (InterruptedException e) {}
+			Log.d("ERROR h264",e.getMessage().toString());
+		}
+		catch (InterruptedException e) {
+			Log.d("ERROR h264-second",e.getMessage().toString());}
 
 		Log.d(TAG,"H264 packetizer stopped !");
 

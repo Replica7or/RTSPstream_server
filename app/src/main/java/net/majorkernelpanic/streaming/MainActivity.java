@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +18,7 @@ import android.widget.EditText;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 
-public class MainActivity extends Activity implements Session.Callback {
+public class MainActivity extends Activity{
 
 
 
@@ -27,7 +28,7 @@ public class MainActivity extends Activity implements Session.Callback {
     private net.majorkernelpanic.streaming.gl.SurfaceView mSurfaceView;
     private EditText mEditText;
     private Session mSession;
-
+    private TextureView textureView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +40,13 @@ public class MainActivity extends Activity implements Session.Callback {
         VideoQuality.DEFAULT_VIDEO_QUALITY.resX=1920;
         VideoQuality.DEFAULT_VIDEO_QUALITY.resY=1080;
         VideoQuality.DEFAULT_VIDEO_QUALITY.framerate = 30;
-        VideoQuality.DEFAULT_VIDEO_QUALITY.bitrate=10000000;
+        VideoQuality.DEFAULT_VIDEO_QUALITY.bitrate=17000;
 
 
 
         mSurfaceView =  (net.majorkernelpanic.streaming.gl.SurfaceView)findViewById(R.id.surface);
+        textureView = (TextureView)findViewById(R.id.textureView);
+
 
         // Sets the port of the RTSP server to 1234
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -53,21 +56,21 @@ public class MainActivity extends Activity implements Session.Callback {
         Session mSession;
         // Configures the SessionBuilder
         VideoQuality quality = new VideoQuality(
-                1920, 1080, 20, 500000);
+                1280, 720, 30, 5000);
 
 
 
         SessionBuilder.getInstance()
                 .setSurfaceView( mSurfaceView)
                 .setContext(getApplicationContext())
-                .setAudioEncoder(SessionBuilder.AUDIO_AMRNB)
+                .setAudioEncoder(SessionBuilder.AUDIO_AAC)
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                .setVideoQuality(quality).setCallback(this);
+                .setVideoQuality(quality);
 
 
         this.startService(new Intent(this, RtspServer.class));
     }
-
+/*
     @Override
     public void onBitrateUpdate(long l) {
     }
@@ -99,5 +102,5 @@ public class MainActivity extends Activity implements Session.Callback {
     public void onSessionStopped() {
         Log.d("QQQQQQQQQ", "SESSION STOPPED");
 
-    }
+    }*/
 }

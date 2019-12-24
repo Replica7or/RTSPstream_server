@@ -97,6 +97,7 @@ public abstract class VideoStream extends MediaStream {
 	public VideoStream(int camera) {
 		super();
 		setCamera(camera);
+		mMode=MODE_MEDIACODEC_API_2;
 	}
 
 	/**
@@ -281,12 +282,12 @@ public abstract class VideoStream extends MediaStream {
 	/** Stops the stream. */
 	public synchronized void stop() {
 		if (mCamera != null) {
-			if (mMode == MODE_MEDIACODEC_API) {
-				mCamera.setPreviewCallbackWithBuffer(null);
-			}
-			if (mMode == MODE_MEDIACODEC_API_2) {
+			//if (mMode == MODE_MEDIACODEC_API) {
+			//	mCamera.setPreviewCallbackWithBuffer(null);
+			//}
+			//if (mMode == MODE_MEDIACODEC_API_2) {
 				((SurfaceView)mSurfaceView).removeMediaCodecSurface();
-			}
+			//}
 			super.stop();
 			// We need to restart the preview
 			if (!mCameraOpenedManually) {
@@ -406,11 +407,16 @@ public abstract class VideoStream extends MediaStream {
 	 */
 	protected void encodeWithMediaCodec() throws RuntimeException, IOException {
 		if (mMode == MODE_MEDIACODEC_API_2) {
-			// Uses the method MediaCodec.createInputSurface to feed the encoder
-			encodeWithMediaCodecMethod2();
-		} else {
-			// Uses dequeueInputBuffer to feed the encoder
+			// Uses the method MediaCodec.createInputSurface to feed the encoder; method2
 			encodeWithMediaCodecMethod1();
+		} else {
+			// Uses dequeueInputBuffer to feed the encoder; method1
+			encodeWithMediaCodecMethod1();
+			//====================================================================== method1
+			//TODO
+			//TODO
+			//TODO
+			//==================================================================
 		}
 	}	
 
@@ -453,7 +459,7 @@ public abstract class VideoStream extends MediaStream {
 		mMediaCodec.start();
 
 		Camera.PreviewCallback callback = new Camera.PreviewCallback() {
-			long now = System.nanoTime()/1000, oldnow = now, i=0;
+			long now = System.nanoTime()/10, oldnow = now, i=0;
 			ByteBuffer[] inputBuffers = mMediaCodec.getInputBuffers();
 			@Override
 			public void onPreviewFrame(byte[] data, Camera camera) {
@@ -464,7 +470,7 @@ public abstract class VideoStream extends MediaStream {
 					//Log.d(TAG,"Measured: "+1000000L/(now-oldnow)+" fps.");
 				}
 				try {
-					int bufferIndex = mMediaCodec.dequeueInputBuffer(500000);
+					int bufferIndex = mMediaCodec.dequeueInputBuffer(2500000);	//500000
 					if (bufferIndex>=0) {
 						inputBuffers[bufferIndex].clear();
 						if (data == null) Log.e(TAG,"Symptom of the \"Callback buffer was to small\" problem...");
@@ -473,7 +479,13 @@ public abstract class VideoStream extends MediaStream {
 					} else {
 						Log.e(TAG,"No buffer available !");
 					}
-				} finally {
+				}
+				catch (Exception e)
+				{
+					//Log.d("ERROR_ERROR_ERROR", e.getMessage());
+					//return
+
+				} finally{
 					mCamera.addCallbackBuffer(data);
 				}				
 			}
