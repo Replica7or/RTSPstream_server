@@ -282,12 +282,8 @@ public abstract class VideoStream extends MediaStream {
 	/** Stops the stream. */
 	public synchronized void stop() {
 		if (mCamera != null) {
-			//if (mMode == MODE_MEDIACODEC_API) {
-			//	mCamera.setPreviewCallbackWithBuffer(null);
-			//}
-			//if (mMode == MODE_MEDIACODEC_API_2) {
-				((SurfaceView)mSurfaceView).removeMediaCodecSurface();
-			//}
+				mCamera.setPreviewCallbackWithBuffer(null);
+
 			super.stop();
 			// We need to restart the preview
 			if (!mCameraOpenedManually) {
@@ -325,99 +321,14 @@ public abstract class VideoStream extends MediaStream {
 	/**
 	 * Video encoding is done by a MediaRecorder.
 	 */
-	protected void encodeWithMediaRecorder() throws IOException, ConfNotSupportedException {
-
-		Log.d(TAG,"Video encoded using the MediaRecorder API");
-
-		// We need a local socket to forward data output by the camera to the packetizer
-		createSockets();
-
-		// Reopens the camera if needed
-		destroyCamera();
-		createCamera();
-
-		// The camera must be unlocked before the MediaRecorder can use it
-		unlockCamera();
-
-		try {
-			mMediaRecorder = new MediaRecorder();
-			mMediaRecorder.setCamera(mCamera);
-			mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-			mMediaRecorder.setVideoEncoder(mVideoEncoder);
-			mMediaRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
-			mMediaRecorder.setVideoSize(mRequestedQuality.resX,mRequestedQuality.resY);
-			mMediaRecorder.setVideoFrameRate(mRequestedQuality.framerate);
-
-			// The bandwidth actually consumed is often above what was requested 
-			mMediaRecorder.setVideoEncodingBitRate((int)(mRequestedQuality.bitrate*0.8));
-
-			// We write the output of the camera in a local socket instead of a file !			
-			// This one little trick makes streaming feasible quiet simply: data from the camera
-			// can then be manipulated at the other end of the socket
-			FileDescriptor fd = null;
-			if (sPipeApi == PIPE_API_PFD) {
-				fd = mParcelWrite.getFileDescriptor();
-			} else  {
-				fd = mSender.getFileDescriptor();
-			}
-			mMediaRecorder.setOutputFile(fd);
-
-			mMediaRecorder.prepare();
-			mMediaRecorder.start();
-
-		} catch (Exception e) {
-			throw new ConfNotSupportedException(e.getMessage());
-		}
-
-		InputStream is = null;
-
-		if (sPipeApi == PIPE_API_PFD) {
-			is = new ParcelFileDescriptor.AutoCloseInputStream(mParcelRead);
-		} else  {
-			is = mReceiver.getInputStream();
-		}
-
-		// This will skip the MPEG4 header if this step fails we can't stream anything :(
-		try {
-			byte buffer[] = new byte[4];
-			// Skip all atoms preceding mdat atom
-			while (!Thread.interrupted()) {
-				while (is.read() != 'm');
-				is.read(buffer,0,3);
-				if (buffer[0] == 'd' && buffer[1] == 'a' && buffer[2] == 't') break;
-			}
-		} catch (IOException e) {
-			Log.e(TAG,"Couldn't skip mp4 header :/");
-			stop();
-			throw e;
-		}
-
-		// The packetizer encapsulates the bit stream in an RTP stream and send it over the network
-		mPacketizer.setInputStream(is);
-		mPacketizer.start();
-
-		mStreaming = true;
-
-	}
+	protected void encodeWithMediaRecorder() throws IOException, ConfNotSupportedException { }
 
 
 	/**
 	 * Video encoding is done by a MediaCodec.
 	 */
 	protected void encodeWithMediaCodec() throws RuntimeException, IOException {
-		if (mMode == MODE_MEDIACODEC_API_2) {
-			// Uses the method MediaCodec.createInputSurface to feed the encoder; method2
 			encodeWithMediaCodecMethod1();
-		} else {
-			// Uses dequeueInputBuffer to feed the encoder; method1
-			encodeWithMediaCodecMethod1();
-			//====================================================================== method1
-			//TODO
-			//TODO
-			//TODO
-			//==================================================================
-		}
 	}	
 
 	/**
@@ -499,7 +410,6 @@ public abstract class VideoStream extends MediaStream {
 		mPacketizer.start();
 
 		mStreaming = true;
-
 	}
 
 	/**
@@ -509,7 +419,7 @@ public abstract class VideoStream extends MediaStream {
 	@SuppressLint({ "InlinedApi", "NewApi" })	
 	protected void encodeWithMediaCodecMethod2() throws RuntimeException, IOException {
 
-		Log.d(TAG,"Video encoded using the MediaCodec API with a surface");
+		/*Log.d(TAG,"Video encoded using the MediaCodec API with a surface");
 
 		// Updates the parameters of the camera if needed
 		createCamera();
@@ -536,7 +446,7 @@ public abstract class VideoStream extends MediaStream {
 		mPacketizer.start();
 
 		mStreaming = true;
-
+*/
 	}
 
 	/**

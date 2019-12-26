@@ -37,10 +37,9 @@ public class MainActivity extends Activity{
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         //this.stopService(new Intent(this, RtspServer.class));
-        VideoQuality.DEFAULT_VIDEO_QUALITY.resX=1920;
-        VideoQuality.DEFAULT_VIDEO_QUALITY.resY=1080;
+        VideoQuality.DEFAULT_VIDEO_QUALITY.resX=720;
+        VideoQuality.DEFAULT_VIDEO_QUALITY.resY=480;
         VideoQuality.DEFAULT_VIDEO_QUALITY.framerate = 30;
-        VideoQuality.DEFAULT_VIDEO_QUALITY.bitrate=17000;
 
 
 
@@ -56,7 +55,7 @@ public class MainActivity extends Activity{
         Session mSession;
         // Configures the SessionBuilder
         VideoQuality quality = new VideoQuality(
-                1280, 720, 30, 5000);
+                720, 480, 30, 5000);
 
 
 
