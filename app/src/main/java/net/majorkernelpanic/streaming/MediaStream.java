@@ -270,12 +270,8 @@ public abstract class MediaStream implements Stream {
 			throw new IllegalStateException("No destination ports set for the stream !");
 
 		mPacketizer.setTimeToLive(mTTL);
-		
-		if (mMode != MODE_MEDIARECORDER_API) {
-			encodeWithMediaCodec();
-		} else {
-			encodeWithMediaCodec();
-		}
+
+		encodeWithMediaCodec();
 
 	}
 
@@ -284,22 +280,11 @@ public abstract class MediaStream implements Stream {
 	public synchronized  void stop() {
 		if (mStreaming) {
 			try {
-				if (mMode==10){//MODE_MEDIARECORDER_API) {
 					mPacketizer.stop();
 					mMediaCodec.stop();
 					mMediaCodec.release();
 					mMediaCodec = null;
-					/*mMediaRecorder.stop();
-					mMediaRecorder.release();
-					mMediaRecorder = null;
-					closeSockets();
-					mPacketizer.stop();*/
-				} else {
-					mPacketizer.stop();
-					mMediaCodec.stop();
-					mMediaCodec.release();
-					mMediaCodec = null;
-				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}	
