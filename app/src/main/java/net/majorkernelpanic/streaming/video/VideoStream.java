@@ -29,7 +29,6 @@ import net.majorkernelpanic.streaming.Stream;
 import net.majorkernelpanic.streaming.exceptions.CameraInUseException;
 import net.majorkernelpanic.streaming.exceptions.ConfNotSupportedException;
 import net.majorkernelpanic.streaming.exceptions.InvalidSurfaceException;
-import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.hw.EncoderDebugger;
 import net.majorkernelpanic.streaming.hw.NV21Convertor;
 import net.majorkernelpanic.streaming.rtp.MediaCodecInputStream;
@@ -49,6 +48,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
+import android.view.SurfaceView;
 
 /** 
  * Don't use this class directly.
@@ -149,7 +149,7 @@ public abstract class VideoStream extends MediaStream {
 	 * Sets a Surface to show a preview of recorded media (video). 
 	 * You can call this method at any time and changes will take effect next time you call {@link #start()}.
 	 */
-	public synchronized void setSurfaceView(SurfaceView view) {
+	public synchronized void setSurfaceView(android.view.SurfaceView view) {
 		mSurfaceView = view;
 		if (mSurfaceHolderCallback != null && mSurfaceView != null && mSurfaceView.getHolder() != null) {
 			mSurfaceView.getHolder().removeCallback(mSurfaceHolderCallback);
@@ -524,12 +524,9 @@ public abstract class VideoStream extends MediaStream {
 				mCamera.setDisplayOrientation(mOrientation);
 
 				try {
-					if (mMode == MODE_MEDIACODEC_API_2) {
-						mSurfaceView.startGLThread();
-						mCamera.setPreviewTexture(mSurfaceView.getSurfaceTexture());
-					} else {
+
 						mCamera.setPreviewDisplay(mSurfaceView.getHolder());
-					}
+
 				} catch (IOException e) {
 					throw new InvalidSurfaceException("Invalid surface !");
 				}
@@ -574,7 +571,7 @@ public abstract class VideoStream extends MediaStream {
 		int[] max = VideoQuality.determineMaximumSupportedFramerate(parameters);
 		
 		double ratio = (double)mQuality.resX/(double)mQuality.resY;
-		mSurfaceView.requestAspectRatio(ratio);
+		//mSurfaceView.requestAspectRatio(ratio);
 		
 		parameters.setPreviewFormat(mCameraImageFormat);
 		parameters.setPreviewSize(mQuality.resX, mQuality.resY);

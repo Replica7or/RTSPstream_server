@@ -7,30 +7,34 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.SurfaceTexture;
+import android.media.MediaCodec;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethod;
 import android.widget.Button;
 import android.widget.EditText;
 
-import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 
-public class MainActivity extends Activity{
+public class MainActivity extends Activity implements SurfaceHolder.Callback{
 
 
 
     private final static String TAG = "MainActivity";
 
     private Button mButton1, mButton2;
-    private net.majorkernelpanic.streaming.gl.SurfaceView mSurfaceView;
+    private android.view.SurfaceView mSurfaceView;
     private EditText mEditText;
     private Session mSession;
-    private TextureView textureView;
+    private android.view.SurfaceView textureView;
+    SessionBuilder SB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +49,10 @@ public class MainActivity extends Activity{
 
 
 
-        mSurfaceView =  (net.majorkernelpanic.streaming.gl.SurfaceView)findViewById(R.id.surface);
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface);
 
-        textureView = (TextureView)findViewById(R.id.textureView);
-
+        textureView = (android.view.SurfaceView) findViewById(R.id.textureView);
+        Surface surf = textureView.getHolder().getSurface();
 
         // Sets the port of the RTSP server to 1234
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -61,37 +65,42 @@ public class MainActivity extends Activity{
                 1280, 720, 30, 10000);
 
 
-       /* Session session = SessionBuilder.getInstance()
-                .setSurfaceView( mSurfaceView)
-                .setContext(getApplicationContext())
-                .setAudioEncoder(SessionBuilder.AUDIO_AAC)
-                .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                .setVideoQuality(quality).build();*/
-
-
-        SessionBuilder.getInstance()
+        //mSurfaceView.addMediaCodecSurface(surf);
+        mSurfaceView.getHolder().addCallback(this);
+        SB = SessionBuilder.getInstance()
                 .setSurfaceView( mSurfaceView)
                 .setContext(getApplicationContext())
                 .setAudioEncoder(SessionBuilder.AUDIO_AAC)
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
                 .setVideoQuality(quality);
-        //session.startPreview();
-
 
 
         this.startService(new Intent(this, RtspServer.class));
-        /*mSurfaceView.getSurfaceTexture().setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-            @Override
-            public void onFrameAvailable(SurfaceTexture surfaceTexture)
-            {
-                Log.d("1111111111111111", "AVAILABLE!");
-            }
-        });*/
+
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder)
+    {
+        Log.d("SURFACE", "CREATED        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        SB.build().startPreview();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+    {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder)
+    {
+
     }
 
 
-/*
-    @Override
+
+   /* @Override
     public void onBitrateUpdate(long l) {
     }
 
@@ -104,12 +113,12 @@ public class MainActivity extends Activity{
     @Override
     public void onPreviewStarted() {
 
+
         Log.d("QQQQQQQQQ", "PREVIEW STARTED");
     }
 
     @Override
     public void onSessionConfigured() {
-
         Log.d("QQQQQQQQQ", "SESSION CONFIGURED");
     }
 
