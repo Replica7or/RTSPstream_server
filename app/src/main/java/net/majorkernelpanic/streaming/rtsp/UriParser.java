@@ -39,6 +39,7 @@ import net.majorkernelpanic.streaming.video.VideoQuality;
 
 import android.content.ContentValues;
 import android.hardware.Camera.CameraInfo;
+import android.util.Log;
 
 /**
  * This class parses URIs received by the RTSP server and configures a Session accordingly.
@@ -78,11 +79,11 @@ public class UriParser {
                     URLEncoder.encode(keyValue[0], "UTF-8"), // Name
                     URLEncoder.encode(value, "UTF-8")  // Value
             );
-
+			Log.d("PARAMS_PARAMS_PARAMS", keyValue[0]);
         }
 
 		if (params.size()>0) {
-
+			Log.d("PARAMS_PARAMS_PARAMS", String.valueOf(params.size()));
 			builder.setAudioEncoder(AUDIO_NONE).setVideoEncoder(VIDEO_NONE);
             Set<String> paramKeys=params.keySet();
 			// Those parameters must be parsed first or else they won't necessarily be taken into account
