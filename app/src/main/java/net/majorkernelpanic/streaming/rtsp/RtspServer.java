@@ -424,6 +424,7 @@ public class RtspServer extends Service {
 
 			// Streaming stops when client disconnects
 			boolean streaming = isStreaming();
+
 			mSession.syncStop();
 			if (streaming && !isStreaming()) {
 				postMessage(MESSAGE_STREAMING_STOPPED);

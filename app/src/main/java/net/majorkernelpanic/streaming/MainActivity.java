@@ -23,7 +23,7 @@ import android.widget.EditText;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 
-public class MainActivity extends Activity implements SurfaceHolder.Callback{
+public class MainActivity extends Activity implements Session.Callback,SurfaceHolder.Callback{
 
 
 
@@ -35,6 +35,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
     private Session mSession;
     private android.view.SurfaceView textureView;
     SessionBuilder SB;
+    Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
         editor.putString(RtspServer.KEY_PORT, String.valueOf(1234));
         editor.commit();
         Log.d("QQQQQQQQQQQQQQQQQQQQQ", String.valueOf(VideoQuality.DEFAULT_VIDEO_QUALITY.resX)+"\t"+String.valueOf(VideoQuality.DEFAULT_VIDEO_QUALITY.bitrate));
-        Session mSession;
+
         // Configures the SessionBuilder
         final VideoQuality quality = new VideoQuality(
                 1280, 720, 30, 10000);
@@ -72,7 +73,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
                 .setContext(getApplicationContext())
                 .setAudioEncoder(SessionBuilder.AUDIO_AAC)
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                .setVideoQuality(quality);
+                .setVideoQuality(quality).setCallback(this);
 
 
         this.startService(new Intent(this, RtspServer.class));
@@ -83,7 +84,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
     public void surfaceCreated(SurfaceHolder holder)
     {
         Log.d("SURFACE", "CREATED        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        SB.build().startPreview();
+        session = SB.build();
+        session.startPreview();
     }
 
     @Override
@@ -100,7 +102,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
 
 
 
-   /* @Override
+    @Override
     public void onBitrateUpdate(long l) {
     }
 
@@ -125,11 +127,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback{
     @Override
     public void onSessionStarted() {
         Log.d("QQQQQQQQQ", "SESSION STARTED");
+
     }
 
     @Override
     public void onSessionStopped() {
-        Log.d("QQQQQQQQQ", "SESSION STOPPED");
-
-    }*/
+        Log.d("QQQQQQQQQ", "THIS SESSION STOPPED");
+        session = SB.build();
+        session.startPreview();
+    }
 }
